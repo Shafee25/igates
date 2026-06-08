@@ -380,9 +380,8 @@ export default function LeadsPage() {
           value={form.preferredMode}
           onChange={(e) => setForm({ ...form, preferredMode: e.target.value })}
         >
-          <option value="">Preferred Study Mode</option>
-          <option value="Weekday">Weekday</option>
-          <option value="Evening">Evening</option>
+          <option value="">Choose Study Mode</option>
+          <option value="Physical">Physical</option>
           <option value="Online">Online</option>
         </select>
 

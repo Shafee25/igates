@@ -16,6 +16,11 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "iGates LeadFlow | Admissions CRM",
   description: "Lead generation and admissions management system for iGates International Campus",
+  icons: {
+    icon: "/images/igates-logo.png",
+    shortcut: "/images/igates-logo.png",
+    apple: "/images/igates-logo.png",
+  },
 };
 
 export default function RootLayout({

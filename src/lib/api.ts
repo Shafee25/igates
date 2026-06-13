@@ -1,7 +1,15 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
+function getUrl(path: string) {
+  // If API_URL is "/api" and path already starts with "/api", avoid duplication
+  if (API_URL === "/api" && path.startsWith("/api")) {
+    return path;
+  }
+  return `${API_URL}${path}`;
+}
+
 export async function apiGet<T>(path: string): Promise<T> {
-  const url = path.startsWith("/api/dashboard/") ? path : `${API_URL}${path}`;
+  const url = getUrl(path);
 
   const res = await fetch(url, {
     cache: "no-store",
@@ -15,7 +23,7 @@ export async function apiGet<T>(path: string): Promise<T> {
 }
 
 export async function apiPost<T>(path: string, data: unknown): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(getUrl(path), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -31,7 +39,7 @@ export async function apiPost<T>(path: string, data: unknown): Promise<T> {
 }
 
 export async function apiPatch<T>(path: string, data: unknown): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(getUrl(path), {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -47,7 +55,7 @@ export async function apiPatch<T>(path: string, data: unknown): Promise<T> {
 }
 
 export async function apiDelete<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(getUrl(path), {
     method: "DELETE",
   });
 

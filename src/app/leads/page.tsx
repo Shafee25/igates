@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { apiDelete, apiGet, apiPost, apiPatch } from "@/lib/api";
@@ -39,7 +39,7 @@ type LeadsResponse = {
   data: Lead[];
 };
 
-export default function LeadsPage() {
+function LeadsContent() {
   const searchParams = useSearchParams();
   const [courses, setCourses] = useState<Course[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -671,5 +671,13 @@ export default function LeadsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function LeadsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate-700">Loading page...</div>}>
+      <LeadsContent />
+    </Suspense>
   );
 }

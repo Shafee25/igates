@@ -1,0 +1,171 @@
+generator client {
+  provider        = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  CEO
+  ADMIN
+  OPERATIONS_MANAGER
+  COUNSELLOR
+  MARKETING
+  FRONT_DESK
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  INTERESTED
+  VISIT_SCHEDULED
+  VISITED
+  PARENT_DISCUSSION
+  APPLICATION_PENDING
+  REGISTERED
+  PAID
+  LOST
+}
+
+enum LeadPriority {
+  HOT
+  WARM
+  COLD
+}
+
+enum FollowUpType {
+  CALL
+  WHATSAPP
+  SMS
+  CAMPUS_VISIT
+  PARENT_CALL
+  EMAIL
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  role      UserRole @default(COUNSELLOR)
+  isActive  Boolean  @default(true)
+
+  assignedLeads Lead[]     @relation("AssignedLeads")
+  followUps     FollowUp[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Course {
+  id               Int     @id @default(autoincrement())
+  name             String
+  category         String?
+  duration         String?
+  fee              Float?
+  registrationFee  Float?
+  entryRequirement String?
+  description      String?
+  isActive         Boolean @default(true)
+
+  leads      Lead[]
+  admissions Admission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Campaign {
+  id          Int      @id @default(autoincrement())
+  name        String
+  platform    String?
+  targetArea  String?
+  budget      Float?
+  startDate   DateTime?
+  endDate     DateTime?
+  isActive    Boolean  @default(true)
+
+  leads Lead[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Lead {
+  id              Int          @id @default(autoincrement())
+  fullName        String
+  phone           String
+  whatsapp        String?
+  parentPhone     String?
+  area            String?
+  educationLevel  String?
+  preferredMode   String?
+  careerGoal      String?
+  source          String?
+  notes           String?
+
+  status          LeadStatus   @default(NEW)
+  priority        LeadPriority @default(WARM)
+  nextFollowUpAt  DateTime?
+
+  courseId        Int?
+  assignedToId    Int?
+  campaignId      Int?
+
+  course          Course?   @relation(fields: [courseId], references: [id])
+  assignedTo      User?     @relation("AssignedLeads", fields: [assignedToId], references: [id])
+  campaign        Campaign? @relation(fields: [campaignId], references: [id])
+
+  followUps       FollowUp[]
+  admission       Admission?
+  lostReason      LostReason?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model FollowUp {
+  id              Int          @id @default(autoincrement())
+  leadId          Int
+  staffId         Int?
+  type            FollowUpType
+  outcome         String?
+  note            String?
+  followUpDate    DateTime     @default(now())
+  nextFollowUpAt  DateTime?
+
+  lead            Lead @relation(fields: [leadId], references: [id])
+  staff           User? @relation(fields: [staffId], references: [id])
+
+  createdAt       DateTime @default(now())
+}
+
+model Admission {
+  id               Int      @id @default(autoincrement())
+  leadId           Int      @unique
+  courseId         Int
+  batchName        String?
+  registrationDate DateTime @default(now())
+  totalFee         Float?
+  paidAmount       Float    @default(0)
+  balanceAmount    Float?
+  paymentStatus    String   @default("PENDING")
+
+  lead             Lead   @relation(fields: [leadId], references: [id])
+  course           Course @relation(fields: [courseId], references: [id])
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model LostReason {
+  id          Int      @id @default(autoincrement())
+  leadId      Int      @unique
+  reason      String
+  explanation String?
+  markedDate  DateTime @default(now())
+
+  lead        Lead @relation(fields: [leadId], references: [id])
+}

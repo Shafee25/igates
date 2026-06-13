@@ -75,13 +75,23 @@ export async function DELETE(
       return NextResponse.json({ message: "Invalid course ID" }, { status: 400 });
     }
 
-    const course = await prisma.course.update({
+    // Safely unlink leads and delete admissions before deleting the course
+    await prisma.$transaction([
+      prisma.lead.updateMany({
+        where: { courseId: id },
+        data: { courseId: null },
+      }),
+      prisma.admission.deleteMany({
+        where: { courseId: id },
+      }),
+    ]);
+
+    const course = await prisma.course.delete({
       where: { id },
-      data: { isActive: false },
     });
 
     return NextResponse.json({
-      message: "Course deactivated successfully",
+      message: "Course deleted successfully",
       data: course,
     });
   } catch (error) {
@@ -89,7 +99,7 @@ export async function DELETE(
 
     return NextResponse.json(
       {
-        message: "Failed to deactivate course",
+        message: "Failed to delete course",
         error: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }

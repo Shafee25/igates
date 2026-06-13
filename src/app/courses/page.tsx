@@ -109,16 +109,16 @@ export default function CoursesPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  async function handleDeactivateCourse(courseId: number) {
-    const ok = window.confirm("Deactivate this course?");
+  async function handleDeleteCourse(courseId: number) {
+    const ok = window.confirm("Delete this course permanently?");
     if (!ok) return;
 
     try {
       await apiDelete(`/api/courses/${courseId}`);
       await loadCourses();
     } catch (err) {
-      console.error("Deactivate course error:", err);
-      setError("Failed to deactivate course.");
+      console.error("Delete course error:", err);
+      setError("Failed to delete course. It may be linked to existing leads or admissions.");
     }
   }
 
@@ -312,10 +312,10 @@ export default function CoursesPage() {
                           Edit
                         </button>
                         <button
-                          onClick={() => handleDeactivateCourse(course.id)}
+                          onClick={() => handleDeleteCourse(course.id)}
                           className="rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-700"
                         >
-                          Deactivate
+                          Delete
                         </button>
                       </div>
                     </td>
